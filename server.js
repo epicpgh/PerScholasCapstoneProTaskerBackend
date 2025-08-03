@@ -21,11 +21,21 @@ app.use("/api/tasks", taskRouter);
 app.use('/api/projects', projectRouter)
 
 
-
-app.use( (req, res)=>{
-  res.status(404).json({message: 'Route not found'})
+app.get('/health', (req, res)=>{
+  res.status(200).json({message: 'API is healthy'})
 })
+
+app.use((req, res) => {
+  res.status(404).json({ message: 'Route not found' });
+});
+
+// global error handler
+app.use((err, req, res, next) => {
+  console.error('Global error handler:', err);
+  res.status(500).json({ message: 'Internal server error' });
+});
 
 db.once("open", () => {
   app.listen(PORT, () => console.log(`🌍 Now listening on localhost:${PORT}`));
+  console.log(`Health check: http://localhost:${PORT}/health`);
 });

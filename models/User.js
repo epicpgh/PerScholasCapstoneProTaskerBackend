@@ -20,14 +20,14 @@ const userSchema = new mongoose.Schema({
       type: String,
       required: function () {
         
-        return !this.githubId;
+        return !this.password && !this.githubId;
       },
     },
-    // githubId: {
-    //   type: String,
-    //   unique: true,
-    //   sparse: true, // Allows multiple nulls for testins purposes.
-    // },
+                                  githubId: {
+      type: String,
+      unique: true,
+      sparse: true, // Allows multiple nulls for testins purposes.
+       },
   },
 { timestamps: true });
 

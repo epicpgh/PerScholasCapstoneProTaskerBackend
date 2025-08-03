@@ -3,9 +3,18 @@
 
 
 import Task from "../models/Task.js";
+import Project from "../models/Project.js";
 
 export const getTasks = async (req, res) => {
   try {
+      const project = await Project.find({ 
+        _id: req.params.projectId,
+        user: req.user._id
+      });
+      if (!project) {
+        return res.status(404).json({ message: "Project not found" });
+      }
+
     const tasks = await Task.find({ project: req.params.projectId });
     res.json(tasks);
   } catch (error) {
@@ -16,6 +25,14 @@ export const getTasks = async (req, res) => {
 
 export const createTask = async (req, res) => {
   try {
+      const project = await Project.find({ 
+        _id: req.params.projectId,
+        user: req.user._id
+      });
+      if (!project) {
+        return res.status(404).json({ message: "Project not found" });
+      }
+
     const { title, description, status, dueDate, assignedTo } = req.body;
 
     const task = await Task.create({
