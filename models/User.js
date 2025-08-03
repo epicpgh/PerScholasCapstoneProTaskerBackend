@@ -17,18 +17,19 @@ const userSchema = new mongoose.Schema({
         match: [/.+@.+\..+/, "Must have a valid email address"]
     },
        password: {
-      type: String,
-      required: function () {
-        
-        return !this.password && !this.githubId;
-      },
+    type: String,
+    required: function () {
+      // Password is required only if no GitHub ID is provided
+      return !this.githubId;
     },
-                                  githubId: {
-      type: String,
-      unique: true,
-      sparse: true, // Allows multiple nulls for testins purposes.
-       },
   },
+  githubId: {
+    type: String,
+    unique: true,
+    sparse: true, // Allows multiple nulls for testing purposes
+    default: undefined // Use undefined instead of null to avoid duplicate key issues
+  },
+},
 { timestamps: true });
 
 

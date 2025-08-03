@@ -7,17 +7,20 @@ import Project from "../models/Project.js";
 
 export const getTasks = async (req, res) => {
   try {
-      const project = await Project.find({ 
-        _id: req.params.projectId,
-        user: req.user._id
-      });
-      if (!project) {
-        return res.status(404).json({ message: "Project not found" });
-      }
+    // First verify the project belongs to the authenticated user
+    const project = await Project.findOne({
+      _id: req.params.projectId,
+      user: req.user._id
+    });
+
+    if (!project) {
+      return res.status(404).json({ message: 'Project not found or access denied' });
+    }
 
     const tasks = await Task.find({ project: req.params.projectId });
     res.json(tasks);
   } catch (error) {
+    console.error('Error in getTasks:', error);
     res.status(500).json({ message: error.message });
   }
 };
@@ -25,27 +28,43 @@ export const getTasks = async (req, res) => {
 
 export const createTask = async (req, res) => {
   try {
-      const project = await Project.find({ 
-        _id: req.params.projectId,
-        user: req.user._id
-      });
-      if (!project) {
-        return res.status(404).json({ message: "Project not found" });
-      }
+    console.log('🚀 Creating task for project:', req.params.projectId);
+    console.log('📄 Request body:', req.body);
+    console.log('👤 User ID:', req.user._id);
+
+    // Verify project exists and belongs to user
+    const project = await Project.findOne({ 
+      _id: req.params.projectId,
+      user: req.user._id
+    });
+    
+    if (!project) {
+      console.error('❌ Project not found or access denied');
+      return res.status(404).json({ message: "Project not found or you do not have access to it" });
+    }
+
+    console.log('✅ Project found:', project.name);
 
     const { title, description, status, dueDate, assignedTo } = req.body;
 
+    // Validate required fields
+    if (!title || !title.trim()) {
+      return res.status(400).json({ message: "Task title is required" });
+    }
+
     const task = await Task.create({
-      title,
-      description,
-      status,
-      dueDate,
-      assignedTo,
+      title: title.trim(),
+      description: description || '',
+      status: status || 'To Do',
+      dueDate: dueDate || null,
+      assignedTo: assignedTo || null,
       project: req.params.projectId
     });
 
+    console.log('✅ Task created successfully:', task._id);
     res.status(201).json(task);
   } catch (error) {
+    console.error('❌ Error creating task:', error);
     res.status(500).json({ message: error.message });
   }
 };
