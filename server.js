@@ -33,15 +33,12 @@ app.use((err, req, res, next) => {
   res.status(500).json({ message: "Internal server error" });
 });
 
-// ✅ Call the async DB connect function
 const startServer = async () => {
   await connectDB(); // Connect to MongoDB
 
-  db.once("open", () => {
-    app.listen(PORT, () => {
-      console.log(`🌍 Now listening on http://localhost:${PORT}`);
-      console.log(`✅ Health check: http://localhost:${PORT}/health`);
-    });
+  app.listen(PORT, () => {
+    console.log(`🌍 Now listening on http://localhost:${PORT}`);
+    console.log(`✅ Health check: http://localhost:${PORT}/health`);
   });
 };
 
